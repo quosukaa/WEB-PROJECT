@@ -1,7 +1,14 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, Button } from "@mui/material";
 import DiamondIcon from "@mui/icons-material/Diamond";
+import PeopleAlt from "@mui/icons-material/PeopleAlt";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export default function Header() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const isWalletAgent = location.pathname === "/scampage";
+
   return (
     <Box
       component="header"
@@ -21,51 +28,41 @@ export default function Header() {
         borderBottom: "1px solid rgba(255,255,255,0.06)",
       }}
     >
-      {/* Logo */}
       <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
-        <Box
-          sx={{
-            width: 36,
-            height: 36,
-            borderRadius: "10px",
-            background: "linear-gradient(135deg, #7c3aed, #3b82f6)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
+        <Box sx={{ width: 36, height: 36, borderRadius: "10px", background: "linear-gradient(135deg, #7c3aed, #3b82f6)", display: "flex", alignItems: "center", justifyContent: "center" }}>
           <DiamondIcon sx={{ color: "#fff", fontSize: 18 }} />
         </Box>
-        <Typography
-          sx={{
-            fontFamily: "'Sora', sans-serif",
-            fontWeight: 700,
-            fontSize: "1.15rem",
-            color: "#fff",
-            letterSpacing: "-0.02em",
-          }}
-        >
+        <Typography sx={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: "1.15rem", color: "#fff", letterSpacing: "-0.02em" }}>
           PepeShnene
         </Typography>
       </Box>
 
-      {/* Nav links */}
-      <Box sx={{ display: "flex", gap: 3.5 }}>
-        {[].map((item) => (
-          <Typography
-            key={item}
+      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        {isWalletAgent && (
+          <Button
+            onClick={() => navigate("/users")}
+            startIcon={<PeopleAlt sx={{ fontSize: "0.9rem !important" }} />}
             sx={{
               fontFamily: "'Sora', sans-serif",
-              fontSize: "0.85rem",
-              color: "rgba(255,255,255,0.45)",
-              cursor: "pointer",
-              transition: "color 0.2s",
-              "&:hover": { color: "#a78bfa" },
+              fontWeight: 600,
+              fontSize: "0.8rem",
+              textTransform: "none",
+              borderRadius: "10px",
+              py: 0.7,
+              px: 1.8,
+              color: "rgba(255,255,255,0.55)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              transition: "all 0.2s",
+              "&:hover": {
+                color: "#a78bfa",
+                borderColor: "rgba(124,58,237,0.5)",
+                background: "rgba(124,58,237,0.08)",
+              },
             }}
           >
-            {item}
-          </Typography>
-        ))}
+            Users
+          </Button>
+        )}
       </Box>
     </Box>
   );

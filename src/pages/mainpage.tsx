@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useEffect, useRef } from "react";
 import {
   Box,
@@ -39,6 +40,7 @@ function Starfield() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     };
+
     resize();
     window.addEventListener("resize", resize);
 
@@ -46,24 +48,34 @@ function Starfield() {
       x: Math.random() * window.innerWidth,
       y: Math.random() * window.innerHeight,
       r: Math.random() * 1.4 + 0.2,
-      speed: Math.random() * 0.004 + 0.001,
+      speed: Math.random() * 0.6 + 0.2,
       twinkleOffset: Math.random() * Math.PI * 2,
     }));
 
     let t = 0;
+
     const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      t += 0.012;
+      t += 0.02;
+
       for (const s of stars) {
-        const a =
-          0.3 + 0.65 * Math.abs(Math.sin(t * s.speed * 60 + s.twinkleOffset));
+        s.y -= s.speed;
+        if (s.y < 0) {
+          s.y = canvas.height;
+          s.x = Math.random() * canvas.width;
+        }
+
+        const a = 0.3 + 0.7 * Math.abs(Math.sin(t + s.twinkleOffset));
+
         ctx.beginPath();
         ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(255,255,255,${a})`;
         ctx.fill();
       }
+
       animId = requestAnimationFrame(draw);
     };
+
     draw();
 
     return () => {
@@ -90,18 +102,14 @@ interface User {
 }
 
 const ALL_USERS: User[] = [
-  { id: "USR-001", firstName: "Alexei",    lastName: "Volkov",     token: "tok_ax9f2k1mz0qw", joined: "12 Jan 2025", avatarColor: "#7c3aed" },
-  { id: "USR-002", firstName: "Maria",     lastName: "Ivanova",    token: "tok_bv3g7n4py1re", joined: "03 Feb 2025", avatarColor: "#3b82f6" },
-  { id: "USR-003", firstName: "Dmitri",    lastName: "Sokolov",    token: "tok_cw8h5o2qz6sf", joined: "21 Feb 2025", avatarColor: "#6366f1" },
-  { id: "USR-004", firstName: "Olga",      lastName: "Petrova",    token: "tok_dx1i9p3ra7tg", joined: "05 Mar 2025", avatarColor: "#8b5cf6" },
-  { id: "USR-005", firstName: "Ivan",      lastName: "Sidorov",    token: "tok_ey4j0q8sb2uh", joined: "18 Mar 2025", avatarColor: "#2563eb" },
-  { id: "USR-006", firstName: "Natalia",   lastName: "Kozlova",    token: "tok_fz7k1r9tc3vi", joined: "02 Apr 2025", avatarColor: "#7c3aed" },
-  { id: "USR-007", firstName: "Sergei",    lastName: "Novikov",    token: "tok_ga2l5s0ud4wj", joined: "14 Apr 2025", avatarColor: "#4f46e5" },
-  { id: "USR-008", firstName: "Elena",     lastName: "Morozova",   token: "tok_hb3m6t1ve5xk", joined: "29 Apr 2025", avatarColor: "#3b82f6" },
-  { id: "USR-009", firstName: "Pavel",     lastName: "Fedorov",    token: "tok_ic4n7u2wf6yl", joined: "07 May 2025", avatarColor: "#6d28d9" },
-  { id: "USR-010", firstName: "Anastasia", lastName: "Mikhailova", token: "tok_jd5o8v3xg7zm", joined: "22 May 2025", avatarColor: "#1d4ed8" },
-  { id: "USR-011", firstName: "Kirill",    lastName: "Andreev",    token: "tok_ke6p9w4yh8an", joined: "01 Jun 2025", avatarColor: "#7c3aed" },
-  { id: "USR-012", firstName: "Yuliya",    lastName: "Popova",     token: "tok_lf7q0x5zi9bo", joined: "15 Jun 2025", avatarColor: "#3b82f6" },
+  {
+    id: "u-1001",
+    firstName: "pepe",
+    lastName: "shnene",
+    token: "4g24n04gn40n2g4n04g24n0g4n",
+    joined: "15 Mar 2026",
+    avatarColor: "#60a5fa",
+  },
 ];
 
 const PAGE_SIZE = 5;
@@ -215,6 +223,7 @@ const inputSx = {
 };
 
 export default function UsersPage() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -323,7 +332,12 @@ export default function UsersPage() {
               paginated.map((user, i) => (
                 <Box key={user.id}>
                   <Box sx={{ display: "grid", gridTemplateColumns: "2fr 2fr", alignItems: "center", px: { xs: 2.5, sm: 3 }, py: 1.6, transition: "background 0.15s", "&:hover": { background: "rgba(124,58,237,0.05)" } }}>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+
+                    {/* Левая колонка — клик ведёт на страницу */}
+                    <Box
+                      onClick={() => navigate("/scampage")}
+                      sx={{ display: "flex", alignItems: "center", gap: 1.5, cursor: "pointer" }}
+                    >
                       <Avatar sx={{ width: 34, height: 34, fontSize: "0.75rem", fontFamily: "'Sora', sans-serif", fontWeight: 700, background: `linear-gradient(135deg, ${user.avatarColor} 0%, #3b82f6 100%)`, boxShadow: `0 4px 12px ${user.avatarColor}44`, flexShrink: 0 }}>
                         {user.firstName[0]}{user.lastName[0]}
                       </Avatar>
@@ -337,14 +351,15 @@ export default function UsersPage() {
                       </Box>
                     </Box>
 
-                    <Box>
+                    {/* Правая колонка только копирование, без навигации */}
+                    <Box onClick={(e) => e.stopPropagation()}>
                       <CopyText text={user.token} display={user.token} />
                       <Box sx={{ mt: 0.3 }}>
                         <CopyText text={user.id} display={user.id} />
                       </Box>
                     </Box>
-                  </Box>
 
+                  </Box>
                   {i < paginated.length - 1 && <Divider sx={{ borderColor: "rgba(255,255,255,0.04)" }} />}
                 </Box>
               ))
@@ -384,7 +399,7 @@ export default function UsersPage() {
         </Box>
       </Box>
 
-      {/* Settings modal */}
+      {/* найстроке*/}
       <Dialog open={settingsOpen} onClose={() => setSettingsOpen(false)} sx={modalSx}>
         <DialogContent sx={{ p: 0 }}>
           <Typography sx={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: "1.05rem", color: "#fff", letterSpacing: "-0.02em", mb: 0.5 }}>Settings</Typography>
@@ -394,11 +409,10 @@ export default function UsersPage() {
             <Button fullWidth sx={cancelBtnSx} onClick={() => setSettingsOpen(false)}>Cancel</Button>
             <Button fullWidth sx={saveBtnSx} onClick={() => setSettingsOpen(false)}>Save</Button>
           </Box>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
         </DialogContent>
       </Dialog>
 
-      {/* Add Lead modal */}
+      {/* добавить дыбила(лида) */}
       <Dialog open={addLeadOpen} onClose={() => setAddLeadOpen(false)} sx={modalSx}>
         <DialogContent sx={{ p: 0 }}>
           <Typography sx={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: "1.05rem", color: "#fff", letterSpacing: "-0.02em", mb: 0.5 }}>Add Lead</Typography>

@@ -19,7 +19,7 @@ import Footer from "../components/footer";
 const schema = z
   .object({
     firstName: z.string().min(2, "Минимум 2 символа"),
-    lastName: z.string().min(2, "Минимум 2 символа"),
+    
     password: z
       .string()
       .min(8, "Минимум 8 символов")
@@ -49,31 +49,53 @@ function Starfield() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     };
+
     resize();
     window.addEventListener("resize", resize);
 
-    const stars = Array.from({ length: 160 }, () => ({
-      x: Math.random() * window.innerWidth,
-      y: Math.random() * window.innerHeight,
-      r: Math.random() * 1.4 + 0.2,
-      speed: Math.random() * 0.004 + 0.001,
-      twinkleOffset: Math.random() * Math.PI * 2,
-    }));
+    const center = () => ({
+      x: canvas.width / 2,
+      y: canvas.height / 2,
+    });
+
+    const stars = Array.from({ length: 360 }, () => {
+      const radius = Math.random() * Math.min(window.innerWidth, window.innerHeight) * 0.6;
+      const angle = Math.random() * Math.PI * 2;
+
+      return {
+        radius,
+        angle,
+        speed: Math.random() * 0.002 + 0.0005,
+        r: Math.random() * 1.4 + 0.2,
+        twinkleOffset: Math.random() * Math.PI * 2,
+      };
+    });
 
     let t = 0;
+
     const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      t += 0.012;
+      t += 0.02;
+
+      const c = center();
+
       for (const s of stars) {
-        const a =
-          0.3 + 0.65 * Math.abs(Math.sin(t * s.speed * 60 + s.twinkleOffset));
+        s.angle += s.speed;
+
+        const x = c.x + Math.cos(s.angle) * s.radius;
+        const y = c.y + Math.sin(s.angle) * s.radius;
+
+        const a = 0.3 + 0.7 * Math.abs(Math.sin(t + s.twinkleOffset));
+
         ctx.beginPath();
-        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.arc(x, y, s.r, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(255,255,255,${a})`;
         ctx.fill();
       }
+
       animId = requestAnimationFrame(draw);
     };
+
     draw();
 
     return () => {
@@ -226,15 +248,7 @@ export default function RegisterPage() {
                   helperText={errors.firstName?.message}
                   {...register("firstName")}
                 />
-                <TextField
-                  label="Last name"
-                  fullWidth
-                  size="small"
-                  sx={inputSx}
-                  error={!!errors.lastName}
-                  helperText={errors.lastName?.message}
-                  {...register("lastName")}
-                />
+              
               </Box>
 
               <TextField
